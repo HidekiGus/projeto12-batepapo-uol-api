@@ -43,7 +43,7 @@ server.get("/participants", async(req, res) => {
 
 server.post("/messages", async(req, res) => {
     const { to, text, type } = req.body;
-    const { user } = req.headers.User;
+    const user = req.headers.user;
 })
 
 // Remove usuários inativos
@@ -54,6 +54,7 @@ setInterval(async() => {
         await db.collection("mensagens").insertOne({ from: element.name, to: "Todos", text: "sai da sala...", type: "status", time: dayjs().format("HH:mm:ss") });
     });
     await db.collection("participantes").deleteMany({ lastStatus: { $lt: now} });
+    console.log("Usuários inativos removidos");
 },15000)
 
 server.listen(5000, () => {console.log("Servidor rodando!")});
