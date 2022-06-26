@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 
 dotenv.config();
 
-
 const cliente = new MongoClient("mongodb://127.0.0.1:27017");
 let db;
 
@@ -40,6 +39,11 @@ server.post("/participants", async (req, res) => {
 server.get("/participants", async(req, res) => {
     const allParticipants = await db.collection("participantes").find({}).toArray();
     res.send(allParticipants);
+})
+
+server.post("/messages", async(req, res) => {
+    const { to, text, type } = req.body;
+    const { user } = req.headers.User;
 })
 
 // Remove usuários inativos
