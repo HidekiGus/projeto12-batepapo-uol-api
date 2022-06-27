@@ -7,7 +7,7 @@ import joi from "joi";
 
 dotenv.config();
 
-const cliente = new MongoClient(URL_CONNECT_MONGO);
+const cliente = new MongoClient(process.env.URL_CONNECT_MONGO);
 let db;
 
 cliente.connect().then(() => {
@@ -19,6 +19,7 @@ const server = express();
 server.use(express.json());
 server.use(cors());
 
+//POST Participants
 server.post("/participants", async (req, res) => {
     const userSchema = joi.object({
         name: joi.string().required()
@@ -40,11 +41,13 @@ server.post("/participants", async (req, res) => {
     }
 });
 
+//GET Participants
 server.get("/participants", async(req, res) => {
     const allParticipants = await db.collection("participantes").find({}).toArray();
     res.send(allParticipants);
 })
 
+//POST Messages
 server.post("/messages", async(req, res) => {
     const messageSchema = joi.object({
         to: joi.string().required(),
@@ -63,6 +66,7 @@ server.post("/messages", async(req, res) => {
     };
 });
 
+//GET Messages
 server.get("/messages", async(req, res) => {
     const messages = await db.collection("mensagens").find({}).toArray();
     const user = req.headers.user;
@@ -84,6 +88,7 @@ server.get("/messages", async(req, res) => {
     res.send(mensagensParaEnviar);
 });
 
+// POST Status
 server.post("/status", async(req, res) => {
     const user = req.headers.user;
     const userExists = db.collection("participantes").find({ user });
