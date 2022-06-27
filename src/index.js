@@ -21,7 +21,7 @@ server.use(cors());
 
 server.post("/participants", async (req, res) => {
     const userSchema = joi.object({
-        name: joi.string().required();
+        name: joi.string().required()
     });
     const { name } = req.body;
     const validation = userSchema.validate(user, { abortEarly: true });
