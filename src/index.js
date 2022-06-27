@@ -84,8 +84,18 @@ server.get("/messages", async(req, res) => {
     res.send(mensagensParaEnviar);
 });
 
-server.post("/status", )
-
+server.post("/status", async(req, res) => {
+    const user = req.headers.user;
+    const userExists = db.collection("participantes").find({ user });
+    if (userExists !== null) {
+        await db.collection("participants").updateOne({ user }, {$set: { lastStatus: Date.now() }});
+        res.sendStatus(200);
+        return;
+    } else {
+        res.sendStatus(404);
+        return;
+    };
+});
 
 // Remove usuários inativos
 setInterval(async() => {
