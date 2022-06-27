@@ -3,6 +3,7 @@ import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import dayjs from "dayjs";
+import joi from "joi";
 
 dotenv.config();
 
@@ -19,14 +20,17 @@ server.use(express.json());
 server.use(cors());
 
 server.post("/participants", async (req, res) => {
+    const userSchema = joi.object({
+        name: joi.string().required();
+    });
     const { name } = req.body;
-    const nameExists = await db.collection("participantes").findOne({ name: name });
-    console.log(nameExists);
-    //validacoes
-    if (name === "") {
+    const validation = userSchema.validate(user, { abortEarly: true });
+    if (validation.error) {
         res.sendStatus(422);
         return;
-    } else if (nameExists !== null) {
+    }
+    const nameExists = await db.collection("participantes").findOne({ name: name });
+    if (nameExists !== null) {
         res.sendStatus(409);
         return;
     } else {
@@ -48,6 +52,28 @@ server.post("/messages", async(req, res) => {
     res.sendStatus(201);
 });
 
+server.get("/messages", async(req, res) => {
+    const messages = await db.collection("mensagens").find({}).toArray();
+    const user = req.headers.user;
+    const limit = parseInt(req.query.limit);
+    const mensagensParaEnviar = [];
+    let tamanho = messages.length - 1;
+
+    while (mensagensParaEnviar.length < limit) {
+        let elemento = messages[tamanho];
+        if (elemento.type === "private_message") {
+            if ((elemento.to === user) || (elemento.from === user)) {
+                mensagensParaEnviar = [ elemento, ...mensagensParaEnviar];
+            };
+        } else {
+            mensagensParaEnviar = [ elemento, ...mensagensParaEnviar];
+        };
+        tamanho--;
+    };
+    res.send(mensagensParaEnviar);
+});
+
+server.post("/status", )
 
 
 // Remove usuários inativos
